@@ -1,6 +1,6 @@
 # 🧘 ZenCLI
 
-> A hardcore macOS CLI tool that helps fight procrastination by taking control away from you.
+> A hardcore macOS/Linux CLI tool that helps fight procrastination by taking control away from you.
 
 Instead of relying on willpower, ZenCLI blocks distracting sites at the OS level during focus sessions — no browser extension, no incognito workaround.
 
@@ -18,8 +18,8 @@ Instead of relying on willpower, ZenCLI blocks distracting sites at the OS level
 
 ## Requirements
 
-- macOS
-- [.NET 10 SDK](https://dotnet.microsoft.com/download)
+- macOS or Linux
+- [.NET 10 SDK](https://dotnet.microsoft.com/download) *(only needed if building from source)*
 - `sudo` access (required to modify `/etc/hosts`)
 
 > ⚠️ **Known limitation:** Brave and Opera use their own DNS resolver and may bypass the block. Works best with Safari, Chrome, and Firefox.
@@ -28,24 +28,49 @@ Instead of relying on willpower, ZenCLI blocks distracting sites at the OS level
 
 ## Installation
 
+### Option 1 — Download binary (recommended)
+
+1. Download the latest `zen` binary from [Releases](https://github.com/d4nilx/ZenCLI/releases)
+2. Install it:
+
+```bash
+sudo cp zen /usr/local/bin/zen
+sudo chmod +x /usr/local/bin/zen
+```
+
+3. Run it:
+
+```bash
+zen start
+```
+
+### Option 2 — Build from source
+
+Requires [.NET 10 SDK](https://dotnet.microsoft.com/download).
+
 ```bash
 git clone https://github.com/d4nilx/ZenCLI.git
 cd ZenCLI
 dotnet build
 ```
 
-To run commands without `dotnet run --`, publish a self-contained binary:
+To publish a self-contained binary:
 
 ```bash
-dotnet publish -c Release -r osx-arm64 --self-contained true   # macOS Apple Silicon
-dotnet publish -c Release -r osx-x64 --self-contained true     # macOS Intel
-dotnet publish -c Release -r linux-x64 --self-contained true   # Linux
+# macOS Apple Silicon
+dotnet publish -c Release -r osx-arm64 --self-contained true
+
+# macOS Intel
+dotnet publish -c Release -r osx-x64 --self-contained true
+
+# Linux
+dotnet publish -c Release -r linux-x64 --self-contained true
 ```
 
-Then add the output folder to your `$PATH`, or create an alias:
-
+Then install:
 ```bash
-alias zen='/path/to/publish/output/ZenCLI'
+sudo cp bin/Release/net10.0/<runtime>/publish/ZenCLI /usr/local/bin/zen
+sudo chmod +x /usr/local/bin/zen
 ```
 
 ---
@@ -57,7 +82,7 @@ alias zen='/path/to/publish/output/ZenCLI'
 ### Start a focus session
 
 ```bash
-sudo dotnet run -- start
+sudo zen start
 ```
 
 Starts a timer using your configured duration and blocks all sites on your list.
@@ -66,18 +91,18 @@ Type `stop` at any time to end the session early — sites will be unblocked imm
 ### Manage blocked sites
 
 ```bash
-dotnet run -- add youtube.com       # Add a site to the block list
-dotnet run -- remove youtube.com    # Remove a site from the block list
-dotnet run -- lst                   # View your current block list
+sudo zen add youtube.com       # Add a site to the block list
+sudo zen remove youtube.com    # Remove a site from the block list
+zen lst                        # View your current block list
 ```
 
 ### Configure timer settings
 
 ```bash
-dotnet run -- tms
+zen tms
 ```
 
-Lets you set focus duration, short break, and long break durations. Settings are saved to `~/.zencli/config.json`.
+Set focus duration, short break, and long break durations. Settings are saved to `~/.zencli/config.json`.
 
 ---
 
@@ -125,8 +150,8 @@ Settings are stored at `~/.zencli/config.json`:
 
 ## Status
 
-🚧 Active development — core features working, automatic break logic in progress.
+🚧 Active development — core features working, `zen tms` and automatic break logic in progress.
 
 ---
 
-Built by: Daniil Zhdanov *[[@d4nilx](https://github.com/d4nilx)]*
+*Built by [@d4nilx](https://github.com/d4nilx)*
