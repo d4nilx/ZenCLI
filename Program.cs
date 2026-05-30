@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using ZenCLI.Models;
-using ZenCLI.Services;
+﻿using ZenCLI.Services;
 
 var configManager = new ConfigManager();
 var config = configManager.LoadConfig();
@@ -29,7 +26,7 @@ switch (command)
 {
     case "start":
         var cts = new CancellationTokenSource();
-    
+        
         var inputTask = Task.Run(() =>
         {
             if (Console.ReadLine()?.ToLower() == "stop")
@@ -37,7 +34,10 @@ switch (command)
         });
     
         blockingService.StartBlocking(config.BlockedSites);
-        await pomodoroManager.StartTimerAsync(config.Breaks.PomodoroDurationMinutes, cts.Token);
+        await pomodoroManager.StartTimerAsync(
+            config.Breaks.PomodoroDurationMinutes,
+            config.Breaks.ShortBreakDurationMinutes, 
+            cts.Token);
         blockingService.StopBlocking();
         break;
         
@@ -50,7 +50,54 @@ switch (command)
         break;
         
     case "tms":
-        Console.WriteLine("⚙️ Set your breaks: (in development)");
+        Console.Write($"⚙️ Set your focus time (minutes) [{config.Breaks.PomodoroDurationMinutes}]: ");
+        string timeInput = Console.ReadLine();
+       
+        int finalMinutes = config.Breaks.PomodoroDurationMinutes; 
+        
+        if (!string.IsNullOrWhiteSpace(timeInput))
+        {
+            if (!int.TryParse(timeInput, out finalMinutes))
+            {
+                Console.WriteLine("❌ Please enter a valid number");
+                break;
+            }
+        }
+
+        Console.Write($"☕ Set your break time (minutes) [{config.Breaks.ShortBreakDurationMinutes}]: ");
+        string breakInput = Console.ReadLine();
+        
+        int finalBreakMinutes = config.Breaks.ShortBreakDurationMinutes;
+        
+        if (!string.IsNullOrWhiteSpace(breakInput))
+        {
+            if (!int.TryParse(breakInput, out finalBreakMinutes))
+            {
+                Console.WriteLine("❌ Please enter a valid number");
+                break;
+            }
+        }
+    
+        Console.Write($"🛋️ Set your long break time (minutes) [{config.Breaks.LongBreakDurationMinutes}]: ");
+        string longBreakInput = Console.ReadLine();
+        int finalLongBreakMinutes = config.Breaks.LongBreakDurationMinutes;
+        
+        if (!string.IsNullOrWhiteSpace(longBreakInput))
+        {
+            if (!int.TryParse(longBreakInput, out finalLongBreakMinutes))
+            {
+                Console.WriteLine("❌ Please enter a valid number");
+                break;
+            }
+        }
+        
+        config.Breaks.PomodoroDurationMinutes = finalMinutes;
+        config.Breaks.ShortBreakDurationMinutes = finalBreakMinutes;
+        config.Breaks.LongBreakDurationMinutes = finalLongBreakMinutes;
+        
+        configManager.SaveConfig(config); 
+
+        Console.WriteLine($"✅ Settings saved! Focus: {finalMinutes}m, Short break: {finalBreakMinutes}m, Long break: {finalLongBreakMinutes}m");
         break;
         
     case "add":

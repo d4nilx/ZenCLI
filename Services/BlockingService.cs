@@ -32,7 +32,7 @@ public class BlockingService
                 }
                 sw.WriteLine("# === ZENCLI BLOCK END ===");
             }
-
+            FlushDnsCache();
             Console.WriteLine("🔒 Sites have been blocked");
         }
         catch (UnauthorizedAccessException)
@@ -57,5 +57,11 @@ public class BlockingService
         {
             Console.WriteLine("❌ Error: Administrator access required to unblock (run with sudo)");
         }
+    }
+    
+    private void FlushDnsCache()
+    {
+        System.Diagnostics.Process.Start("dscacheutil", "-flushcache")?.WaitForExit();
+        System.Diagnostics.Process.Start("killall", "-HUP mDNSResponder")?.WaitForExit();
     }
 }

@@ -111,7 +111,6 @@ Set focus duration, short break, and long break durations. Settings are saved to
 ```
 ZenCLI/
 ├── Program.cs
-├── Commands/
 ├── Models/
 │   ├── ZenConfig.cs
 │   └── BreakSettings.cs
