@@ -26,21 +26,27 @@ switch (command)
 {
     case "start":
         var cts = new CancellationTokenSource();
-        
+    
         var inputTask = Task.Run(() =>
         {
             if (Console.ReadLine()?.ToLower() == "stop")
                 cts.Cancel();
         });
-    
+
         blockingService.StartBlocking(config.BlockedSites);
-        await pomodoroManager.StartTimerAsync(
-            config.Breaks.PomodoroDurationMinutes,
-            config.Breaks.ShortBreakDurationMinutes, 
-            cts.Token);
+    
+        while (!cts.Token.IsCancellationRequested)
+        {
+            await pomodoroManager.StartTimerAsync(
+                config.Breaks.PomodoroDurationMinutes,
+                config.Breaks.ShortBreakDurationMinutes,
+                config.Breaks.LongBreakDurationMinutes,
+                cts.Token);
+        }
+    
         blockingService.StopBlocking();
         break;
-        
+     
     case "lst":
         Console.WriteLine("📋 Your block list: ");
         foreach (var site in config.BlockedSites)

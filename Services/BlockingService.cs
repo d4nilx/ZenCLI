@@ -8,7 +8,8 @@ public class BlockingService
     
     public BlockingService()
     {
-        string homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        string sudoUser = Environment.GetEnvironmentVariable("SUDO_USER") ?? Environment.GetEnvironmentVariable("USER") ?? "unknown";
+        string homeDir = Path.Combine("/Users", sudoUser);
         _backupFilePath = Path.Combine(homeDir, ".zencli", "hosts.backup");
     }
 
@@ -18,6 +19,10 @@ public class BlockingService
 
         try
         {
+            string zenDir = Path.GetDirectoryName(_backupFilePath)!;
+            if (!Directory.Exists(zenDir))
+                Directory.CreateDirectory(zenDir);
+
             string originalHosts = File.ReadAllText(HostFilePath);
             File.WriteAllText(_backupFilePath, originalHosts);
 
@@ -33,11 +38,11 @@ public class BlockingService
                 sw.WriteLine("# === ZENCLI BLOCK END ===");
             }
             FlushDnsCache();
-            Console.WriteLine("🔒 Sites have been blocked");
+            Console.WriteLine("\uD83D\uDD12 Sites have been blocked");
         }
-        catch (UnauthorizedAccessException)
+        catch (Exception ex)
         {
-            Console.WriteLine("❌ Error: Administrator access required (run with sudo)");
+            Console.WriteLine($"\u274C Error during blocking: {ex.Message}");
         }
     }
 
@@ -50,12 +55,12 @@ public class BlockingService
             string cleanHosts = File.ReadAllText(_backupFilePath);
             File.WriteAllText(HostFilePath, cleanHosts);
             File.Delete(_backupFilePath);
-            
-            Console.WriteLine("🔓 Blocks removed. Internet is free!");
+            FlushDnsCache();
+            Console.WriteLine("\uD83D\uDD13 Blocks removed. Internet is free!");
         }
-        catch (UnauthorizedAccessException)
+        catch (Exception ex)
         {
-            Console.WriteLine("❌ Error: Administrator access required to unblock (run with sudo)");
+            Console.WriteLine($"\u274C Error during unblocking: {ex.Message}");
         }
     }
     
