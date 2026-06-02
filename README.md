@@ -8,21 +8,24 @@ Instead of relying on willpower, ZenCLI blocks distracting sites at the OS level
 
 ## Features
 
-- 🔒 **Hard blocking** — redirects traffic for blocked sites via `/etc/hosts`. Incognito mode won't help.
-- ⏱ **Terminal timer** — visual countdown with color-coded progress (green → yellow → red).
+- 🎬 **Sleek UI** — beautifully crafted terminal interface using `Spectre.Console` with dynamic boot animations and interactive progress bars.
+- 🔒 **Hard blocking** — redirects traffic for blocked sites via `/etc/hosts`. Automatically handles `www.` prefixes and flushes macOS DNS cache for instant effect.
+- 📝 **Custom Plans** — build a temporary, multi-task focus session with individual focus and break times. Clears from memory when done.
+- ⏱ **Smart Pomodoro** — visual countdown with color-coded progress bars and automatic long/short break management.
 - ⚙️ **Flexible config** — add or remove sites from the block list anytime via simple commands.
-- 🛑 **In-session stop** — type `stop` while the timer is running to end the session early.
-- 🛡 **Graceful shutdown** — if the process is killed (Ctrl+C), `/etc/hosts` is automatically restored.
+- 🛡 **Graceful shutdown** — if the process is killed (Ctrl+C), `/etc/hosts` is automatically restored and sites are unblocked instantly.
 
 ---
 
 ## Requirements
 
-- macOS or Linux
+- macOS (Apple Silicon/Intel) or Linux
 - [.NET 10 SDK](https://dotnet.microsoft.com/download) *(only needed if building from source)*
-- `sudo` access (required to modify `/etc/hosts`)
+- `sudo` access (required to modify `/etc/hosts` and flush DNS)
 
-> ⚠️ **Known limitation:** Brave and Opera use their own DNS resolver and may bypass the block. Works best with Safari, Chrome, and Firefox.
+> ⚠️ **Browser Note:** Works perfectly across all browsers! However, **Safari** has a particularly aggressive DNS cache and might occasionally bypass the block.
+>
+> 💡 **Important:** You do not need to refresh the blocked pages after starting the timer. Simply **close the tabs of distracting sites before** running the start command!
 
 ---
 
@@ -31,7 +34,7 @@ Instead of relying on willpower, ZenCLI blocks distracting sites at the OS level
 ### Option 1 — Download binary (recommended)
 
 1. Download the latest `zen` binary from [Releases](https://github.com/d4nilx/ZenCLI/releases)
-2. Install it:
+2. Install it to your system path:
 
 ```bash
 sudo cp zen /usr/local/bin/zen
@@ -41,7 +44,7 @@ sudo chmod +x /usr/local/bin/zen
 3. Run it:
 
 ```bash
-zen start
+sudo zen start
 ```
 
 ### Option 2 — Build from source
@@ -49,7 +52,7 @@ zen start
 Requires [.NET 10 SDK](https://dotnet.microsoft.com/download).
 
 ```bash
-git clone https://github.com/d4nilx/ZenCLI.git
+git clone [https://github.com/d4nilx/ZenCLI.git](https://github.com/d4nilx/ZenCLI.git)
 cd ZenCLI
 dotnet build
 ```
@@ -57,7 +60,7 @@ dotnet build
 To publish a self-contained binary:
 
 ```bash
-# macOS Apple Silicon
+# macOS Apple Silicon (M-series)
 dotnet publish -c Release -r osx-arm64 --self-contained true
 
 # macOS Intel
@@ -85,8 +88,8 @@ sudo chmod +x /usr/local/bin/zen
 sudo zen start
 ```
 
-Starts a timer using your configured duration and blocks all sites on your list.
-Type `stop` at any time to end the session early — sites will be unblocked immediately.
+Starts a classic Pomodoro timer using your configured duration and blocks all sites on your list. 
+Use Ctrl+C to execute an emergency stop and unblock sites.
 
 ### Manage blocked sites
 
@@ -95,6 +98,12 @@ sudo zen add youtube.com       # Add a site to the block list
 sudo zen remove youtube.com    # Remove a site from the block list
 zen lst                        # View your current block list
 ```
+### Create a custom focus plan
+```bash
+sudo zen plan
+```
+Interactive prompt to create a specific list of tasks for the day, each with custom focus and break times.
+Automatically cycles through them and blocks distractions.
 
 ### Configure timer settings
 
@@ -110,14 +119,15 @@ Set focus duration, short break, and long break durations. Settings are saved to
 
 ```
 ZenCLI/
-├── Program.cs
+├── Program.cs                 # Main orchestrator & Spectre.Console UI
 ├── Models/
-│   ├── ZenConfig.cs
-│   └── BreakSettings.cs
+│   ├── ZenConfig.cs           # Configuration models
+│   ├── BreakSettings.cs       
+│   └── PlanTask.cs            # Custom plan models
 └── Services/
-    ├── BlockingService.cs
-    ├── ConfigManager.cs
-    └── PomodoroManager.cs
+    ├── BlockingService.cs     # /etc/hosts manipulation & DNS flush
+    ├── ConfigManager.cs       # JSON serialization
+    └── PomodoroManager.cs     # Progress bars & async timer logic
 ```
 
 ---
@@ -143,14 +153,16 @@ Settings are stored at `~/.zencli/config.json`:
 
 - **C# / .NET 10** — console app with `async/await` and `CancellationToken`
 - **System.Text.Json** — config serialization
+- **Spectre.Console** — advanced terminal UI components (spinners, tables, progress bars).
+- **System.Diagnostics.Process** — native macOS commands execution (killall -HUP mDNSResponder)
 - **`/etc/hosts`** — OS-level site blocking
 
 ---
 
 ## Status
 
-🚧 Active development — core features working, `zen tms` and automatic break logic in progress.
+🔄 **Optimizing Stability** — core features, custom plans, and system-level blocking are fully implemented. The current focus is on **real-world** testing and stability improvements.
 
 ---
 
-*Built by [@d4nilx](https://github.com/d4nilx)*
+*Built by [Daniil Zhdanov / @d4nilx](https://github.com/d4nilx)*
