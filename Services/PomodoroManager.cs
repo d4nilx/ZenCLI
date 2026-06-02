@@ -1,78 +1,85 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Spectre.Console;
+
 namespace ZenCLI.Services;
 
 public class PomodoroManager
 {
     private int _sessionCount = 0;
+
     public async Task StartTimerAsync(int minutes, int shortBreakMinutes, int longBreakMinutes, CancellationToken token)
     {
-        int totalSeconds = minutes * 60;
-        Console.WriteLine($"\n Starting focus-session: {minutes} minutes. Let's go!");
-        Console.CursorVisible = false;
+        AnsiConsole.MarkupLine($"\n[bold green]🚀 Starting focus-session: {minutes} minutes. Let's go![/]");
+        await RunProgressBarAsync("🎯 Focus", "green", minutes, token);
 
-        for (int i = totalSeconds; i >= 0; i--)
-        {
-            if (token.IsCancellationRequested)
-            {
-                Console.WriteLine("\n\n🛑 Session stopped.");
-                break;
-            }
-            
-            TimeSpan timeSpan = TimeSpan.FromSeconds(i);
+        if (token.IsCancellationRequested) return;
 
-            if (i > totalSeconds / 2) 
-                Console.ForegroundColor = ConsoleColor.Green;
-            else if (i > 60) 
-                Console.ForegroundColor = ConsoleColor.Yellow;
-            else 
-                Console.ForegroundColor = ConsoleColor.Red;
-            
-            Console.Write($"\r Left: {timeSpan:mm\\:ss}     ");
-
-            await Task.Delay(1000);
-        }
-        
         _sessionCount++;
+        Console.WriteLine("\a"); 
+
+        bool isLongSession = (_sessionCount % 4 == 0);
+        int currentBreakMinutes = isLongSession ? longBreakMinutes : shortBreakMinutes;
+        string breakIcon = isLongSession ? "🛋️" : "☕";
+        string breakName = isLongSession ? "Long break" : "Short break";
+
+        AnsiConsole.MarkupLine($"\n[bold blue]{breakIcon} {breakName} time! {currentBreakMinutes} minutes. (Break #{_sessionCount})[/]");
         
-        Console.ResetColor();
-        Console.CursorVisible = true;
-        
-        Console.WriteLine("\a\n\n🎉 Session is end! You can have rest now!");
-        
-        bool IsLongSession = (_sessionCount % 4 == 0);
-        
-        int currentBreakMinutes = IsLongSession ? longBreakMinutes : shortBreakMinutes;
-        string breakIcon = IsLongSession ? "🛋️" : "☕";
-        string breakName = IsLongSession ? "Long break" : "Short break";
-        
-        Console.WriteLine($"\n{breakIcon} {breakName} time! {currentBreakMinutes} minutes. (Break #{_sessionCount})");
-        Console.CursorVisible = false;
-        
-        int breakSeconds = currentBreakMinutes * 60;
-        for (int i = breakSeconds; i >= 0; i--)
+        await RunProgressBarAsync($"{breakIcon} {breakName}", "blue", currentBreakMinutes, token);
+
+        if (!token.IsCancellationRequested)
         {
-            if (token.IsCancellationRequested)
-            {
-                Console.WriteLine("\n\n🛑 Session stopped.");
-                break;
-            }
-            
-            TimeSpan timeSpan = TimeSpan.FromSeconds(i);
-
-            if (i > breakSeconds / 2) 
-                Console.ForegroundColor = ConsoleColor.Green;
-            else if (i > 60) 
-                Console.ForegroundColor = ConsoleColor.Yellow;
-            else 
-                Console.ForegroundColor = ConsoleColor.Red;
-            
-            Console.Write($"\r Left: {timeSpan:mm\\:ss}     ");
-
-            await Task.Delay(1000);
+            Console.WriteLine("\a"); 
+            AnsiConsole.MarkupLine("\n[bold green]🧘 Break is over! Ready for next session?[/]\n");
         }
+    }
+    
+    public async Task RunCustomTaskAsync(string taskName, int minutes, CancellationToken token)
+    {
+        bool isBreak = taskName.ToLower().Contains("перерва") || taskName.ToLower().Contains("break");
+        string color = isBreak ? "blue" : "green";
+        string icon = isBreak ? "☕" : "🚀";
+
+        AnsiConsole.MarkupLine($"\n[bold {color}]{icon} Current task: {taskName} for {minutes} minutes.[/]");
         
-        Console.ResetColor();
-        Console.CursorVisible = true;
-        Console.WriteLine("\a\n\n🧘 Break is over! Ready for next session?");
+        await RunProgressBarAsync(taskName, color, minutes, token);
+
+        if (!token.IsCancellationRequested)
+        {
+            Console.WriteLine("\a");
+            AnsiConsole.MarkupLine($"\n[bold {color}]✅ '{taskName}' finished![/]");
+        }
+    }
+
+    private async Task RunProgressBarAsync(string description, string color, int minutes, CancellationToken token)
+    {
+        int totalSeconds = minutes * 60;
+
+        await AnsiConsole.Progress()
+            .AutoClear(false) 
+            .Columns(new ProgressColumn[]
+            {
+                new TaskDescriptionColumn(),                 
+                new ProgressBarColumn(),                     
+                new PercentageColumn(),                      
+                new RemainingTimeColumn(),                   
+                new SpinnerColumn(Spinner.Known.Dots),       
+            })
+            .StartAsync(async ctx =>
+            {
+                var progressTask = ctx.AddTask($"[{color}]{description}[/]", maxValue: totalSeconds);
+
+                while (!progressTask.IsFinished && !token.IsCancellationRequested)
+                {
+                    await Task.Delay(1000);       
+                    progressTask.Increment(1);    
+                }
+                
+                if (token.IsCancellationRequested)
+                {
+                    AnsiConsole.MarkupLine("\n[bold red]🛑 Stopped early.[/]");
+                }
+            });
     }
 }
-
