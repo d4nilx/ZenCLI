@@ -27,6 +27,12 @@ Instead of relying on willpower, ZenCLI blocks distracting sites at the OS level
 >
 > 💡 **Important:** You do not need to refresh the blocked pages after starting the timer. Simply **close the tabs of distracting sites before** running the start command!
 
+<p align="center">
+  <img src="img/Screenshot9(google_chrome).png" width="45%" alt="Blocked in Chrome" />
+  &nbsp;
+  <img src="img/Screenshot8(safari).png" width="45%" alt="Blocked in Safari" />
+</p>
+
 ---
 
 ## Installation
@@ -88,6 +94,10 @@ sudo chmod +x /usr/local/bin/zen
 sudo zen start
 ```
 
+<p align="center">
+  <img src="img/Screenshot1.png" width="700" alt="ZenCLI Main UI" />
+</p>
+
 Starts a classic Pomodoro timer using your configured duration and blocks all sites on your list. 
 Use Ctrl+C to execute an emergency stop and unblock sites.
 
@@ -98,10 +108,21 @@ sudo zen add youtube.com       # Add a site to the block list
 sudo zen remove youtube.com    # Remove a site from the block list
 zen lst                        # View your current block list
 ```
+
+<p> 
+    <img src="img/Screenshot5.png" width="600" alt="ZenCLI add"/>
+    <img src="img/Screenshot6.png" width="600" alt="ZenCLI remove"/>
+</p>
+
 ### Create a custom focus plan
 ```bash
 sudo zen plan
 ```
+
+<p> 
+    <img src="img/Screenshot3.png" width="600" alt="ZenCLI add"/>
+</p>
+
 Interactive prompt to create a specific list of tasks for the day, each with custom focus and break times.
 Automatically cycles through them and blocks distractions.
 
@@ -110,6 +131,10 @@ Automatically cycles through them and blocks distractions.
 ```bash
 zen tms
 ```
+
+<p> 
+    <img src="img/Screenshot2.png" width="600" alt="ZenCLI add"/>
+</p>
 
 Set focus duration, short break, and long break durations. Settings are saved to `~/.zencli/config.json`.
 
@@ -156,6 +181,8 @@ Settings are stored at `~/.zencli/config.json`:
 - **Spectre.Console** — advanced terminal UI components (spinners, tables, progress bars).
 - **System.Diagnostics.Process** — native macOS commands execution (killall -HUP mDNSResponder)
 - **`/etc/hosts`** — OS-level site blocking
+
+<img src="img/Screenshot7.png"/>
 
 ---
 
