@@ -6,88 +6,88 @@ using Spectre.Console;
 using ZenCLI.Models;
 using ZenCLI.Services;
 
-// Ініціалізація сервісів
+// Initialize services
 var configManager = new ConfigManager();
 var config = configManager.LoadConfig();
 var blockingService = new BlockingService();
 var pomodoroManager = new PomodoroManager();
 var pixelArtAnimator = new PixelArtAnimator();
 
-// Налаштування екстреного виходу (Ctrl+C)
+// Setup emergency exit handler (Ctrl+C)
 Console.CancelKeyPress += (sender, e) =>
 {
     Console.ResetColor();
     Console.CursorVisible = true;
-    AnsiConsole.MarkupLine("\n\n[bold red]⚠️ Екстрена зупинка! Знімаємо блокування...[/]");
+    AnsiConsole.MarkupLine("\n\n[bold red]⚠️ Emergency stop! Removing blocking...[/]");
     blockingService.StopBlocking();
     Environment.Exit(0);
 };
 
-// Показуємо красиву анімацію завантаження лише один раз при старті
+// Display beautiful loading animation only once on startup
 await ShowStartupAnimationAsync();
 
-// Головний цикл програми
+// Main application loop
 while (true)
 {
     Console.Clear();
     ShowBanner();
 
-    // Створюємо інтерактивне меню
+    // Create interactive menu
     var selectedOption = AnsiConsole.Prompt(
         new SelectionPrompt<string>()
-            .Title("[bold springgreen2]Що будемо робити зараз?[/]")
+            .Title("[bold springgreen2]What would you like to do?[/]")
             .PageSize(10)
-            .HighlightStyle(new Style(foreground: Color.Black, background: Color.SpringGreen3)) // Колір вибраного пункту
+            .HighlightStyle(new Style(foreground: Color.Black, background: Color.SpringGreen3)) // Highlight color
             .AddChoices(new[] {
-                "🚀 Почати фокус-сесію (Start)",
-                "📋 Створити план завдань (Plan)",
-                "⚙️ Налаштування таймера (Settings)",
-                "🌐 Список заблокованих сайтів (List)",
-                "➕ Додати сайт (Add)",
-                "➖ Видалити сайт (Remove)",
-                "❌ Вийти (Exit)"
+                "🚀 Start Focus Session (Start)",
+                "📋 Create Task Plan (Plan)",
+                "⚙️ Timer Settings (Settings)",
+                "🌐 View Blocked Sites (List)",
+                "➕ Add Site (Add)",
+                "➖ Remove Site (Remove)",
+                "❌ Exit (Exit)"
             }));
 
-    // Визначаємо, що робити на основі вибраного пункту
+    // Determine what to do based on selected option
     switch (selectedOption)
     {
-        case "🚀 Почати фокус-сесію (Start)":
+        case "🚀 Start Focus Session (Start)":
             await StartFocusSessionAsync(config, blockingService, pomodoroManager);
             break;
 
-        case "📋 Створити план завдань (Plan)":
+        case "📋 Create Task Plan (Plan)":
             await CreatePlanAsync(config, blockingService, pomodoroManager);
             break;
 
-        case "⚙️ Налаштування таймера (Settings)":
+        case "⚙️ Timer Settings (Settings)":
             UpdateSettings(config, configManager);
             break;
 
-        case "🌐 Список заблокованих сайтів (List)":
+        case "🌐 View Blocked Sites (List)":
             ShowBlockedSites(config);
             break;
 
-        case "➕ Додати сайт (Add)":
+        case "➕ Add Site (Add)":
             AddSite(config, configManager);
             break;
 
-        case "➖ Видалити сайт (Remove)":
+        case "➖ Remove Site (Remove)":
             RemoveSite(config, configManager);
             break;
 
-        case "❌ Вийти (Exit)":
-            AnsiConsole.MarkupLine("[bold springgreen3]Гарного дня! Бережи свій фокус.[/]");
-            return; // Вихід з програми
+        case "❌ Exit (Exit)":
+            AnsiConsole.MarkupLine("[bold springgreen3]Have a great day! Protect your focus.[/]");
+            return; // Exit program
     }
 
-    // Пауза перед поверненням в меню, щоб користувач встиг прочитати результат
-    AnsiConsole.MarkupLine("\n[grey]Натисни будь-яку клавішу для повернення в меню...[/]");
+    // Pause before returning to menu so user can read the result
+    AnsiConsole.MarkupLine("\n[grey]Press any key to return to menu...[/]");
     Console.ReadKey(true);
 }
 
 // ==========================================
-// ЛОГІКА ДОПОМІЖНИХ МЕТОДІВ
-// ==========================================
+// HELPER METHODS IMPLEMENTATION
+// ========================================== 
 
 async Task ShowStartupAnimationAsync()
 {
@@ -115,7 +115,7 @@ async Task ShowStartupAnimationAsync()
 
 void ShowBanner()
 {
-    // Створюємо заголовок з різними відтінками зеленого
+    // Create header with different shades of green
     var figlet = new FigletText("ZenCLI")
         .Centered()
         .Color(Color.SpringGreen3);
@@ -134,10 +134,10 @@ async Task StartFocusSessionAsync(ZenConfig cfg, BlockingService blockSvc, Pomod
 {
     var cts = new CancellationTokenSource();
     
-    // Запускаємо окремий потік для відслідковування натискання клавіш, щоб зупинити сесію
+    // Start separate thread to monitor key presses to stop the session
     Task.Run(() =>
     {
-        AnsiConsole.MarkupLine("[grey](Натисни 'Q' у будь-який момент щоб зупинити сесію)[/]");
+        AnsiConsole.MarkupLine("[grey](Press 'Q' at any time to stop the session)[/]");
         while (!cts.Token.IsCancellationRequested)
         {
             if (Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Q)
@@ -164,40 +164,40 @@ async Task StartFocusSessionAsync(ZenConfig cfg, BlockingService blockSvc, Pomod
 async Task CreatePlanAsync(ZenConfig cfg, BlockingService blockSvc, PomodoroManager pomoMgr)
 {
     int plans = AnsiConsole.Prompt(
-        new TextPrompt<int>("Скільки [green]завдань[/] маєш на сьогодні?")
-            .Validate(n => n > 0 ? ValidationResult.Success() : ValidationResult.Error("[red]Має бути більше 0[/]")));
+        new TextPrompt<int>("How many [green]tasks[/] do you have today?")
+            .Validate(n => n > 0 ? ValidationResult.Success() : ValidationResult.Error("[red]Must be greater than 0[/]")));
     
     List<PlanTask> planTasks = new List<PlanTask>();
 
     for (int i = 1; i <= plans; i++)
     {
-        AnsiConsole.MarkupLine($"\n[bold cyan]--- Завдання #{i} ---[/]");
+        AnsiConsole.MarkupLine($"\n[bold cyan]--- Task #{i} ---[/]");
         PlanTask currentTask = new PlanTask();
         
-        currentTask.Name = AnsiConsole.Prompt(new TextPrompt<string>("Назва завдання:"));
-        currentTask.Minutes = AnsiConsole.Prompt(new TextPrompt<int>("Час на фокус (у хвилинах):").DefaultValue(25));
-        currentTask.BreakMinutes = AnsiConsole.Prompt(new TextPrompt<int>("Час на перерву (у хвилинах):").DefaultValue(5));
+        currentTask.Name = AnsiConsole.Prompt(new TextPrompt<string>("Task name:"));
+        currentTask.Minutes = AnsiConsole.Prompt(new TextPrompt<int>("Focus time (minutes):").DefaultValue(25));
+        currentTask.BreakMinutes = AnsiConsole.Prompt(new TextPrompt<int>("Break time (minutes):").DefaultValue(5));
         
         planTasks.Add(currentTask);
     }
 
-    var table = new Table().Border(TableBorder.Rounded).BorderColor(Color.SpringGreen2).Title("[bold yellow]Твій план фокусування[/]");
-    table.AddColumn("Завдання");
-    table.AddColumn("Фокус");
-    table.AddColumn("Перерва");
+    var table = new Table().Border(TableBorder.Rounded).BorderColor(Color.SpringGreen2).Title("[bold yellow]Your Focus Plan[/]");
+    table.AddColumn("Task");
+    table.AddColumn("Focus");
+    table.AddColumn("Break");
 
     foreach (var task in planTasks)
-        table.AddRow($"[cyan]{task.Name}[/]", $"[green]{task.Minutes} хв[/]", $"[blue]{task.BreakMinutes} хв[/]");
+        table.AddRow($"[cyan]{task.Name}[/]", $"[green]{task.Minutes} min[/]", $"[blue]{task.BreakMinutes} min[/]");
     
     AnsiConsole.Write(table); 
 
-    if (!AnsiConsole.Confirm("\n🚀 Починаємо цей план прямо зараз?", defaultValue: true))
+    if (!AnsiConsole.Confirm("\n🚀 Start this plan now?", defaultValue: true))
     {
-        AnsiConsole.MarkupLine("[red]🛑 План скасовано.[/]");
+        AnsiConsole.MarkupLine("[red]🛑 Plan cancelled.[/]");
         return;
     }
 
-    AnsiConsole.MarkupLine("\n[bold green]🔥 Поїхали! Хай прибуде з тобою фокус.[/]");
+    AnsiConsole.MarkupLine("\n[bold green]🔥 Let's go! May focus be with you.[/]");
     var cts = new CancellationTokenSource();
     
     Task.Run(() =>
@@ -213,40 +213,40 @@ async Task CreatePlanAsync(ZenConfig cfg, BlockingService blockSvc, PomodoroMana
     foreach (var task in planTasks)
     {
         if (cts.Token.IsCancellationRequested) break; 
-        await pomoMgr.RunCustomTaskAsync($"🎯 {task.Name} (Фокус)", task.Minutes, cts.Token);
+        await pomoMgr.RunCustomTaskAsync($"🎯 {task.Name} (Focus)", task.Minutes, cts.Token);
         
         if (cts.Token.IsCancellationRequested) break;
         if (task.BreakMinutes > 0)
-            await pomoMgr.RunCustomTaskAsync($"☕ {task.Name} (Перерва)", task.BreakMinutes, cts.Token);
+            await pomoMgr.RunCustomTaskAsync($"☕ {task.Name} (Break)", task.BreakMinutes, cts.Token);
     }
 
     blockSvc.StopBlocking();
-    AnsiConsole.MarkupLine("\n[bold green]🎉 Всі завдання завершено![/]");
+    AnsiConsole.MarkupLine("\n[bold green]🎉 All tasks completed![/]");
 }
 
 void UpdateSettings(ZenConfig cfg, ConfigManager cfgMgr)
 {
-    AnsiConsole.MarkupLine("[bold cyan]⚙️ Налаштування таймера[/]");
+    AnsiConsole.MarkupLine("[bold cyan]⚙️ Timer Settings[/]");
     
     cfg.Breaks.PomodoroDurationMinutes = AnsiConsole.Prompt(
-        new TextPrompt<int>("Фокус (хвилини):")
+        new TextPrompt<int>("Focus duration (minutes):")
             .DefaultValue(cfg.Breaks.PomodoroDurationMinutes));
 
     cfg.Breaks.ShortBreakDurationMinutes = AnsiConsole.Prompt(
-        new TextPrompt<int>("Коротка перерва (хвилини):")
+        new TextPrompt<int>("Short break (minutes):")
             .DefaultValue(cfg.Breaks.ShortBreakDurationMinutes));
 
     cfg.Breaks.LongBreakDurationMinutes = AnsiConsole.Prompt(
-        new TextPrompt<int>("Довга перерва (хвилини):")
+        new TextPrompt<int>("Long break (minutes):")
             .DefaultValue(cfg.Breaks.LongBreakDurationMinutes));
     
     cfgMgr.SaveConfig(cfg); 
-    AnsiConsole.MarkupLine("[bold green]✅ Налаштування успішно збережено![/]");
+    AnsiConsole.MarkupLine("[bold green]✅ Settings saved successfully![/]");
 }
 
 void ShowBlockedSites(ZenConfig cfg)
 {
-    var sitesTree = new Tree("[red]Заблоковані сайти[/]");
+    var sitesTree = new Tree("[red]Blocked Sites[/]");
     foreach (var site in cfg.BlockedSites) 
         sitesTree.AddNode($"[yellow]{site}[/]");
         
@@ -255,17 +255,17 @@ void ShowBlockedSites(ZenConfig cfg)
 
 void AddSite(ZenConfig cfg, ConfigManager cfgMgr)
 {
-    string siteToAdd = AnsiConsole.Prompt(new TextPrompt<string>("Введи домен сайту (наприклад, youtube.com):")).ToLower();
+    string siteToAdd = AnsiConsole.Prompt(new TextPrompt<string>("Enter domain to block (e.g., youtube.com):")).ToLower();
     
     if (!cfg.BlockedSites.Contains(siteToAdd))
     {
         cfg.BlockedSites.Add(siteToAdd);
         cfgMgr.SaveConfig(cfg); 
-        AnsiConsole.MarkupLine($"[green]✅ Сайт '{siteToAdd}' успішно додано до списку.[/]");
+        AnsiConsole.MarkupLine($"[green]✅ Site '{siteToAdd}' added successfully.[/]");
     }
     else 
     {
-        AnsiConsole.MarkupLine($"[yellow]⚠️ Сайт '{siteToAdd}' вже є у списку.[/]");
+        AnsiConsole.MarkupLine($"[yellow]⚠️ Site '{siteToAdd}' already exists in the list.[/]");
     }
 }
 
@@ -273,19 +273,19 @@ void RemoveSite(ZenConfig cfg, ConfigManager cfgMgr)
 {
     if (cfg.BlockedSites.Count == 0)
     {
-         AnsiConsole.MarkupLine("[yellow]Список сайтів порожній.[/]");
+         AnsiConsole.MarkupLine("[yellow]Site list is empty.[/]");
          return;
     }
 
-    // Робимо видалення теж інтерактивним!
+    // Make removal interactive too!
     var siteToRemove = AnsiConsole.Prompt(
         new SelectionPrompt<string>()
-            .Title("Обери сайт для видалення:")
+            .Title("Select site to remove:")
             .AddChoices(cfg.BlockedSites));
 
     if (cfg.BlockedSites.Remove(siteToRemove))
     {
         cfgMgr.SaveConfig(cfg); 
-        AnsiConsole.MarkupLine($"[green]🗑️ Сайт '{siteToRemove}' розблоковано.[/]");
+        AnsiConsole.MarkupLine($"[green]🗑️ Site '{siteToRemove}' unblocked.[/]");
     }
 }

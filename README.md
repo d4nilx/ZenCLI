@@ -1,3 +1,5 @@
+<img src="img/Screenshot_main.png">
+
 # 🧘 ZenCLI
 
 > A hardcore macOS/Linux CLI tool that helps fight procrastination by taking control away from you.
@@ -24,10 +26,10 @@ Instead of relying on willpower, ZenCLI blocks distracting sites at the OS level
 
 ### Startup Animation
 The program displays beautiful animated pixel art text on launch:
-```
+````
 [blue]█[/] [cyan]█[/] [magenta]█[/] [magenta3]█[/] [hotpink]█[/]
 Z E N C L I
-```
+````
 
 ---
 
@@ -103,6 +105,10 @@ sudo chmod +x /usr/local/bin/zen
 
 ## Usage
 
+<video>
+    <source src="img/ScreenRecording.mov" type="video/mp4">
+</video>
+
 > Commands that modify `/etc/hosts` require `sudo`.
 
 ### Start a focus session
@@ -111,14 +117,14 @@ sudo chmod +x /usr/local/bin/zen
 sudo zen start
 ```
 
-Starts a classic Pomodoro timer using your configured duration and blocks all sites on your list. 
+Starts a classic Pomodoro timer using your configured duration and blocks all sites on your list.
 Use Ctrl+C or press `Q` during the session to execute an emergency stop and unblock sites.
 
 ### Manage blocked sites
 
 Navigate through the interactive menu:
 - **Add Site** — add a new domain to block
-- **Remove Site** — remove a domain from the block list  
+- **Remove Site** — remove a domain from the block list
 - **View Blocked Sites** — see all currently blocked sites
 
 ### Create a custom focus plan
@@ -140,6 +146,10 @@ From the main menu, select "Timer Settings" to adjust:
 - Long break duration (default: 15 min)
 
 Settings are saved to `~/.zencli/config.json`.
+
+<img src="img/Screenshot_1.png">
+<img src="img/Screenshot_2.png">
+<img src="img/Screenshot_3.png">
 
 ---
 
