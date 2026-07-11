@@ -8,12 +8,26 @@ Instead of relying on willpower, ZenCLI blocks distracting sites at the OS level
 
 ## Features
 
-- 🎬 **Sleek UI** — beautifully crafted terminal interface using `Spectre.Console` with dynamic boot animations and interactive progress bars.
+- 🎨 **Beautiful Pixel Art UI** — animated gradient-colored pixel art text on startup. Eye-catching visual branding using `PixelArtAnimator` with smooth color transitions (Blue → Cyan → Magenta → Pink).
+- 🎬 **Sleek Interactive UI** — beautifully crafted terminal interface using `Spectre.Console`. Navigate menus with arrow keys instead of typing commands! All text now in English for global accessibility.
 - 🔒 **Hard blocking** — redirects traffic for blocked sites via `/etc/hosts`. Automatically handles `www.` prefixes and flushes macOS DNS cache for instant effect.
 - 📝 **Custom Plans** — build a temporary, multi-task focus session with individual focus and break times. Clears from memory when done.
-- ⏱ **Smart Pomodoro** — visual countdown with color-coded progress bars and automatic long/short break management.
-- ⚙️ **Flexible config** — add or remove sites from the block list anytime via simple commands.
-- 🛡 **Graceful shutdown** — if the process is killed (Ctrl+C), `/etc/hosts` is automatically restored and sites are unblocked instantly.
+- ⏱ **Smart Pomodoro** — visual countdown with color-coded progress bars and automatic long/short break management. Stop anytime gracefully by pressing `Q`.
+- ⚙️ **Flexible config** — add or remove sites from the block list anytime via the interactive UI.
+- 🛡 **Graceful shutdown** — if the process is killed (Ctrl+C) or stopped via `Q`, `/etc/hosts` is automatically restored and sites are unblocked instantly.
+
+---
+
+## Features Showcase
+
+<!-- Add your videos/photos here -->
+
+### Startup Animation
+The program displays beautiful animated pixel art text on launch:
+```
+[blue]█[/] [cyan]█[/] [magenta]█[/] [magenta3]█[/] [hotpink]█[/]
+Z E N C L I
+```
 
 ---
 
@@ -27,11 +41,14 @@ Instead of relying on willpower, ZenCLI blocks distracting sites at the OS level
 >
 > 💡 **Important:** You do not need to refresh the blocked pages after starting the timer. Simply **close the tabs of distracting sites before** running the start command!
 
+<!-- Photo placeholders - Add your screenshots here -->
+<!-- 
 <p align="center">
-  <img src="img/Screenshot9(google_chrome).png" width="45%" alt="Blocked in Chrome" />
+  <img src="img/your-screenshot-1.png" width="45%" alt="Your description" />
   &nbsp;
-  <img src="img/Screenshot8(safari).png" width="45%" alt="Blocked in Safari" />
+  <img src="img/your-screenshot-2.png" width="45%" alt="Your description" />
 </p>
+-->
 
 ---
 
@@ -58,7 +75,7 @@ sudo zen start
 Requires [.NET 10 SDK](https://dotnet.microsoft.com/download).
 
 ```bash
-git clone [https://github.com/d4nilx/ZenCLI.git](https://github.com/d4nilx/ZenCLI.git)
+git clone https://github.com/d4nilx/ZenCLI.git
 cd ZenCLI
 dotnet build
 ```
@@ -94,49 +111,35 @@ sudo chmod +x /usr/local/bin/zen
 sudo zen start
 ```
 
-<p align="center">
-  <img src="img/Screenshot1.png" width="700" alt="ZenCLI Main UI" />
-</p>
-
 Starts a classic Pomodoro timer using your configured duration and blocks all sites on your list. 
-Use Ctrl+C to execute an emergency stop and unblock sites.
+Use Ctrl+C or press `Q` during the session to execute an emergency stop and unblock sites.
 
 ### Manage blocked sites
 
-```bash
-sudo zen add youtube.com       # Add a site to the block list
-sudo zen remove youtube.com    # Remove a site from the block list
-zen lst                        # View your current block list
-```
-
-<p> 
-    <img src="img/Screenshot5.png" width="600" alt="ZenCLI add"/>
-    <img src="img/Screenshot6.png" width="600" alt="ZenCLI remove"/>
-</p>
+Navigate through the interactive menu:
+- **Add Site** — add a new domain to block
+- **Remove Site** — remove a domain from the block list  
+- **View Blocked Sites** — see all currently blocked sites
 
 ### Create a custom focus plan
+
 ```bash
-sudo zen plan
+sudo zen
 ```
 
-<p> 
-    <img src="img/Screenshot3.png" width="600" alt="ZenCLI add"/>
-</p>
+Then select "Create Task Plan" from the menu.
 
 Interactive prompt to create a specific list of tasks for the day, each with custom focus and break times.
 Automatically cycles through them and blocks distractions.
 
 ### Configure timer settings
 
-```bash
-zen tms
-```
+From the main menu, select "Timer Settings" to adjust:
+- Focus duration (default: 25 min)
+- Short break duration (default: 5 min)
+- Long break duration (default: 15 min)
 
-<p> 
-    <img src="img/Screenshot2.png" width="600" alt="ZenCLI add"/>
-</p>
-
-Set focus duration, short break, and long break durations. Settings are saved to `~/.zencli/config.json`.
+Settings are saved to `~/.zencli/config.json`.
 
 ---
 
@@ -144,15 +147,16 @@ Set focus duration, short break, and long break durations. Settings are saved to
 
 ```
 ZenCLI/
-├── Program.cs                 # Main orchestrator & Spectre.Console UI
+├── Program.cs                      # Main orchestrator & Spectre.Console UI (English)
 ├── Models/
-│   ├── ZenConfig.cs           # Configuration models
-│   ├── BreakSettings.cs       
-│   └── PlanTask.cs            # Custom plan models
+│   ├── ZenConfig.cs                # Configuration models
+│   ├── BreakSettings.cs            # Timer settings
+│   └── PlanTask.cs                 # Custom plan models
 └── Services/
-    ├── BlockingService.cs     # /etc/hosts manipulation & DNS flush
-    ├── ConfigManager.cs       # JSON serialization
-    └── PomodoroManager.cs     # Progress bars & async timer logic
+    ├── BlockingService.cs          # /etc/hosts manipulation & DNS flush
+    ├── ConfigManager.cs            # JSON serialization
+    ├── PomodoroManager.cs          # Progress bars & async timer logic
+    └── PixelArtAnimator.cs         # Pixel art text with gradient animations
 ```
 
 ---
@@ -166,8 +170,8 @@ Settings are stored at `~/.zencli/config.json`:
   "BlockedSites": ["youtube.com", "reddit.com"],
   "Breaks": {
     "PomodoroDurationMinutes": 25,
-    "ShortBreakDuration": 5,
-    "LongBreakDuration": 15
+    "ShortBreakDurationMinutes": 5,
+    "LongBreakDurationMinutes": 15
   }
 }
 ```
@@ -178,17 +182,34 @@ Settings are stored at `~/.zencli/config.json`:
 
 - **C# / .NET 10** — console app with `async/await` and `CancellationToken`
 - **System.Text.Json** — config serialization
-- **Spectre.Console** — advanced terminal UI components (spinners, tables, progress bars).
+- **Spectre.Console** — advanced terminal UI components (spinners, tables, progress bars, colored text)
+- **PixelArtAnimator** — custom pixel art rendering with gradient color transitions
 - **System.Diagnostics.Process** — native macOS commands execution (killall -HUP mDNSResponder)
 - **`/etc/hosts`** — OS-level site blocking
 
-<img src="img/Screenshot7.png"/>
+---
+
+## Recent Updates
+
+### v1.1.0 - Beautiful UI & Internationalization
+- ✨ Added `PixelArtAnimator` service with gradient animations
+- 🌐 Translated entire codebase to English
+- 🎨 Enhanced startup animation with animated pixel art
+- 📊 Improved menu navigation and user experience
 
 ---
 
 ## Status
 
-🔄 **Optimizing Stability** — core features, custom plans, and system-level blocking are fully implemented. The current focus is on **real-world** testing and stability improvements.
+✅ **Feature Complete** — all core features implemented:
+- Interactive menu system ✓
+- Pixel art animations ✓
+- Site blocking at OS level ✓
+- Custom task plans ✓
+- Pomodoro timer with breaks ✓
+- Graceful shutdown handling ✓
+
+🔄 **Current Focus** — real-world testing, stability improvements, and documentation.
 
 ---
 
