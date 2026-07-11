@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.5-beta1" />
       <PackageReference Include="Spectre.Console" Version="0.55.3-alpha.0.18" />
     </ItemGroup>
 
